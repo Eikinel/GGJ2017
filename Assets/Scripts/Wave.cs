@@ -11,19 +11,25 @@ public class Wave : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        _vect = new Vector3(_speed * Time.deltaTime, 0, 0);
+        _vect = new Vector3(_speed * Time.deltaTime, -_speed * Time.deltaTime, 0);
 	}
 	
 	// Update is called once per frame
 	void Update ()
     {
         transform.Translate(_vect);
-	}
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.transform.tag == "Player")
             //Ici enlever de la vie au joueur
             Debug.Log("Collision  T R I G G E R");
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.transform.tag == "Plateform")
+            Destroy(this.gameObject);
     }
 }
