@@ -1,7 +1,7 @@
 ﻿  Screen.cpp
-  Main.cpp
-h:\documents\projets\oni-wa-soto\sources\main.cpp(9): warning C4244: 'argument' : conversion de 'float' en 'unsigned int', perte possible de données
-  Event.cpp
-  Génération de code en cours...
+h:\documents\projets\oni-wa-soto\sources\screen.cpp(21): warning C4244: 'argument' : conversion de 'float' en 'const std::size_t', perte possible de données
+h:\documents\projets\oni-wa-soto\sources\screen.cpp(24): warning C4244: 'argument' : conversion de 'float' en 'const std::size_t', perte possible de données
+h:\documents\projets\oni-wa-soto\sources\screen.cpp(27): warning C4244: 'argument' : conversion de 'float' en 'const std::size_t', perte possible de données
+h:\documents\projets\oni-wa-soto\sources\screen.cpp(30): warning C4244: 'argument' : conversion de 'float' en 'const std::size_t', perte possible de données
   Oni Wa Soto.vcxproj -> H:\Documents\Projets\Oni-Wa-Soto\Debug\Oni Wa Soto.exe
   Oni Wa Soto.vcxproj -> H:\Documents\Projets\Oni-Wa-Soto\Debug\Oni Wa Soto.pdb (Full PDB)
