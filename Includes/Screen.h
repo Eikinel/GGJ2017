@@ -3,27 +3,38 @@
 # include <vector>
 # include "Constants.h"
 # include "Event.h"
+# include "Grid.h"
 
 class IEvent;
 class Button;
 
+enum				eGamestate
+{
+	EXIT = -1,
+	MENU,
+	OPTIONS,
+	GAME
+};
+
 class				IScreen
 {
 public:
-	IScreen(sf::RenderWindow& window);
+	IScreen(sf::RenderWindow& window, eGamestate state);
 	virtual ~IScreen();
 
 	//GETTERS
 	virtual sf::RenderWindow&		getWindow();
 	virtual std::vector<IEvent *>&	getEvents();
-	virtual unsigned int			getIndex();
+	virtual eGamestate				getState() const;
+	virtual const unsigned int		getIndex() const;
 
 	//METHODS
-	virtual int	run();
+	virtual int		run();
 
 protected:
 	sf::RenderWindow&		_window;
 	std::vector<IEvent *>	_events;
+	eGamestate				_state;
 	unsigned int			_index;
 };
 
@@ -43,5 +54,13 @@ class				GameScreen : public IScreen
 {
 public:
 	GameScreen(sf::RenderWindow& window);
-	virtual ~GameScreen() {}
+	virtual ~GameScreen();
+
+	//GETTERS
+	virtual std::vector<Button *>&	getButtons();
+	virtual Grid&					getGrid();
+
+protected:
+	std::vector<Button *>	_buttons;
+	Grid *					_grid;
 };

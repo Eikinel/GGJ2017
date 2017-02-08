@@ -3,37 +3,73 @@
 /* Everything is an entity, from living monster to background element.
 ** Entities are objects that are drawn onto the screen and can collide. */
 
-#include "Constants.h"
-
-class BoxCollider;
+# include "Constants.h"
 
 enum			eEntityType
 {
 	BUTTON,
 	ALLY,
 	ENEMY,
+	GRID,
 	OBJECT
 };
 
+template <typename T>
 class			Entity
 {
 public:
-	Entity(const eEntityType& type);
-	Entity(const Entity& other);
-	virtual ~Entity();
+	//CONSTRUCTORS
+	Entity(const eEntityType& type, const sf::Texture& texture = sf::Texture())
+	{
+		this->_type = type;
+		this->_texture = texture;
+		this->_sprite.setTexture(this->_texture);
+	}
+
+	Entity(const Entity& other)
+	{
+		this->_colliders = other._colliders;
+		this->_type = other._type;
+		this->_texture = other._texture;
+		this->_sprite = other._sprite;
+	}
+
+	virtual ~Entity()
+	{
+		const std::string type[5] = { "button", "ally", "enemy", "grid", "object" };
+
+		std::cout << "Deleting entity of type " << type[this->_type] << std::endl;
+		for (std::vector<T *>::const_iterator it = this->_colliders.begin(); it != this->_colliders.end(); ++it)
+			delete(*it);
+	}
+
 
 	//GETTERS
-	virtual const std::vector<BoxCollider *>&	getColliders() const;
-	virtual const eEntityType&					getType() const;
+	virtual sf::Sprite&				getSprite()
+	{
+		return (this->_sprite);
+	}
 
-	//SETTERS
-	virtual void	setPosition(const sf::Vector2f& pos);
-	virtual void	setPosition(float x, float y);
+	virtual const std::vector<T *>&	getColliders() const
+	{
+		return (this->_colliders);
+	}
+
+	virtual const eEntityType&		getType() const
+	{
+		return (this->_type);
+	}
+
 
 	//METHODS
-	virtual void	addCollider(BoxCollider* box_collider);
+	virtual void	addCollider(T * collider)
+	{
+		this->_colliders.push_back(collider);
+	}
 
 protected:
-	std::vector<BoxCollider *>	_colliders;
-	eEntityType					_type;
+	sf::Texture			_texture;
+	sf::Sprite			_sprite;
+	std::vector<T *>	_colliders;
+	eEntityType			_type;
 };

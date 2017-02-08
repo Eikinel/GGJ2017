@@ -5,25 +5,42 @@
 
 
 //CONSTRUCTORS
+IEvent::IEvent()
+{
+	std::cout << "Creating default options" << std::endl;
+	this->_toggle_options.push_back(true); //Show bounding boxes
+	this->_toggle_options.push_back(true); //Show grid
+}
+
+WindowDefaultEvent::WindowDefaultEvent()
+{
+	std::cout << "Creating window default event" << std::endl;
+}
+
 MenuEvent::MenuEvent()
 {
-	this->_toggle_bbox = false;
+	std::cout << "Creating menu event" << std::endl;
+}
+
+GameEvent::GameEvent()
+{
+	std::cout << "Creating game event" << std::endl;
 }
 
 
 //UPDATE & DRAW METHODS
-int			WindowDefaultEvent::update(IScreen& screen, sf::Event& event)
+int		WindowDefaultEvent::update(IScreen& screen, sf::Event& event)
 {
 	switch (event.type)
 	{
 	case sf::Event::Closed:
-		return (CLOSE);
+		return (EXIT);
 		break;
 	case sf::Event::KeyPressed:
 		switch (event.key.code)
 		{
 		case sf::Keyboard::Escape:
-			return (CLOSE);
+			return (EXIT);
 			break;
 		default:
 			break;
@@ -35,7 +52,7 @@ int			WindowDefaultEvent::update(IScreen& screen, sf::Event& event)
 	return (screen.getIndex());
 }
 
-int			MenuEvent::update(IScreen& screen, sf::Event& event)
+int		MenuEvent::update(IScreen& screen, sf::Event& event)
 {
 	switch (event.type)
 	{
@@ -43,12 +60,15 @@ int			MenuEvent::update(IScreen& screen, sf::Event& event)
 		std::cout << "MenuEvent : Click !" << std::endl;
 		for (std::vector<Button *>::const_iterator it = static_cast<MenuScreen *>(&screen)->getButtons().begin(); it != static_cast<MenuScreen *>(&screen)->getButtons().end(); ++it)
 		{
-			int statut = screen.getIndex();
+			int status = screen.getIndex();
 
 			//Check for each button if the mouse click concern it
-			if ((*it)->getColliders()[0]->getBoundingBox().contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y)))
-				if ((statut = (*it)->triggerEvent()) != screen.getIndex())
-					return (statut);
+			for (std::vector<BoxCollider *>::const_iterator it2 = (*it)->getColliders().begin(); it2 != (*it)->getColliders().end(); ++it2)
+			{
+				if ((*it2)->getShape().getGlobalBounds().contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y)))
+					if ((status = (*it)->triggerEvent()) != screen.getIndex())
+						return (status);
+			}
 		}
 	default:
 		break;
@@ -61,57 +81,186 @@ void		MenuEvent::draw(IScreen& screen)
 {
 	for (std::vector<Button *>::const_iterator it = static_cast<MenuScreen *>(&screen)->getButtons().begin(); it != static_cast<MenuScreen *>(&screen)->getButtons().end(); ++it)
 	{
+		std::vector<sf::VertexArray>	boxes;
+
 		screen.getWindow().draw((*it)->getText());
-		if (this->_toggle_bbox)
-			showBoundingBoxes(static_cast<Entity&>(**it), screen.getWindow());
+		if (this->_toggle_options[0])
+		{
+			this->getBoundingBoxes(static_cast<Entity<BoxCollider>&>(**it), boxes);
+			for (std::vector<sf::VertexArray>::const_iterator it = boxes.begin(); it != boxes.end(); ++it)
+				screen.getWindow().draw(*it);
+		}
 	}
 }
 
-int			GameEvent::update(IScreen& screen, sf::Event& event)
+int		GameEvent::update(IScreen& screen, sf::Event& event)
 {
+	GameScreen*	gscreen = static_cast<GameScreen *>(&screen);
+
+	switch (event.type)
+	{
+	case sf::Event::MouseMoved:
+		//Select a square on the grid according to mouse's position
+		for (std::vector<std::vector<ParallelogramCollider *>>::const_iterator it = gscreen->getGrid().getSquares().begin(); it != gscreen->getGrid().getSquares().end(); ++it)
+		{
+			for (std::vector<ParallelogramCollider *>::const_iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
+			{
+				if ((*it2)->contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y)) && (*it2) != gscreen->getGrid().getSelectedSquare())
+					gscreen->getGrid().selectSquare(**it2);
+			}
+		}
+		break;
+	case sf::Event::MouseButtonReleased:
+		std::cout << "GameEvent : Click !" << std::endl;
+		for (std::vector<Button *>::const_iterator it = gscreen->getButtons().begin(); it != gscreen->getButtons().end(); ++it)
+		{
+			int status = screen.getIndex();
+
+			//Check for each button if the mouse click concern it
+			for (std::vector<BoxCollider *>::const_iterator it2 = (*it)->getColliders().begin(); it2 != (*it)->getColliders().end(); ++it2)
+			{
+				if ((*it2)->getShape().getGlobalBounds().contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y)))
+					if ((status = (*it)->triggerEvent()) != screen.getIndex())
+						return (status);
+			}
+		}
+
+		//Here, perform operations when the player clicked on a case
+		if (gscreen->getGrid().getSelectedSquare() != NULL)
+		{
+			sf::Vector2u	pos = gscreen->getGrid().getSquareIndex(gscreen->getGrid().getSelectedSquare());
+			std::cout << "Clicked on case [" << pos.x << " ; " << pos.y << "]" << std::endl;
+		}
+
+	default:
+		break;
+	}
+
 	return (screen.getIndex());
+}
+
+void		GameEvent::draw(IScreen& screen)
+{
+	GameScreen*	gscreen = static_cast<GameScreen *>(&screen);
+
+	//Draw grid
+	if (this->_toggle_options[1])
+	{
+		ParallelogramCollider*	selected = gscreen->getGrid().getSelectedSquare();
+
+		for (std::vector<sf::VertexArray>::const_iterator it = gscreen->getGrid().getLines().begin(); it != gscreen->getGrid().getLines().end(); ++it)
+			gscreen->getWindow().draw(*it);
+		if (selected != NULL)
+		{
+			selected->getShape().setFillColor(sf::Color::Green);
+			gscreen->getWindow().draw(selected->getShape());
+		}
+	}
+
+	//Draw buttons
+	for (std::vector<Button *>::const_iterator it = gscreen->getButtons().begin(); it != gscreen->getButtons().end(); ++it)
+	{
+		gscreen->getWindow().draw((*it)->getText());
+		//Draw buttons's bounding boxes 
+		if (this->_toggle_options[0])
+		{
+			std::vector<sf::VertexArray>	boxes;
+
+			this->getBoundingBoxes(static_cast<Entity<BoxCollider>&>(**it), boxes);
+			for (std::vector<sf::VertexArray>::const_iterator it = boxes.begin(); it != boxes.end(); ++it)
+				gscreen->getWindow().draw(*it);
+		}
+	}
+}
+
+
+//GETTERS
+bool	IEvent::getToggleBoundingBoxes()
+{
+	return (this->_toggle_options[0]);
+}
+
+bool	IEvent::getToggleGrid()
+{
+	return (this->_toggle_options[1]);
+}
+
+std::vector<bool>&	IEvent::getToggleOptions()
+{
+	return (this->_toggle_options);
+}
+
+
+//SETTERS
+void	IEvent::setToggleOptions(const std::vector<bool>& toggle_options)
+{
+	this->_toggle_options = toggle_options;
 }
 
 
 //OTHER METHODS
-int			IEvent::changeScreen(int gamestate)
+int	IEvent::changeScreen(eGamestate gamestate, IScreen* screen)
 {
-	return (gamestate);
-}
+	std::string	type[4] = { "menu", "options", "game" };
+	int	index;
 
-int			MenuEvent::createGame(int gamestate, sf::RenderWindow* window)
-{
-	all_screens.push_back(new GameScreen(*window));
-	return (gamestate);
-}
-
-void		MenuEvent::showBoundingBoxes(const Entity& e, sf::RenderWindow& window)
-{
-	const sf::Color type[4] = { sf::Color::Blue, sf::Color::Green, sf::Color::Red, sf::Color::White };
-
-	for (std::vector<BoxCollider *>::const_iterator it = e.getColliders().begin(); it != e.getColliders().end(); ++it)
+	if (gamestate == EXIT)
+		return (gamestate);
+	
+	// Check if a screen with the gamestate passed as parameter already exist.
+	// If true, copy options and return the gamestate.
+	// Else, create the screen before performing operations.
+	for (std::vector<IScreen *>::const_iterator it = all_screens.begin(); it != all_screens.end(); ++it)
 	{
-		sf::FloatRect	box = (*it)->getBoundingBox();
-		sf::VertexArray lines(sf::LinesStrip, 5);
-
-		lines[0].position = sf::Vector2f(box.left, box.top);
-		lines[1].position = sf::Vector2f(box.left + box.width, box.top);
-		lines[2].position = sf::Vector2f(box.left + box.width, box.top + box.height);
-		lines[3].position = sf::Vector2f(box.left, box.top + box.height);
-		lines[4].position = sf::Vector2f(box.left, box.top);
-		for (unsigned int i = 0; i < lines.getVertexCount(); i++)
-			lines[i].color = type[e.getType()];
-
-		window.draw(lines);
+		if ((*it)->getState() == gamestate)
+		{
+			if ((*it)->getEvents()[1]->getToggleOptions() != this->_toggle_options)
+			{
+				std::cout << "Replacing old options" << std::endl;
+				(*it)->getEvents()[1]->setToggleOptions(this->_toggle_options);
+			}
+			return ((*it)->getIndex());
+		}
 	}
+	index = this->createScreen(gamestate, screen);
+	std::cout << "Switching screen to " << type[(int)gamestate] << " at index " << index << "." << std::endl;
+	return (index);
 }
 
-int			MenuEvent::toggleBoundingBoxes(int gamestate)
+int	IEvent::createScreen(eGamestate gamestate, IScreen* screen)
 {
-	this->_toggle_bbox = !this->_toggle_bbox;
-	if (this->_toggle_bbox)
+	std::string	type[4] = { "menu", "options", "game" };
+	IScreen*	new_screen;
+
+	std::cout << std::endl << "Creating new " << type[(int)gamestate] << "." << std::endl;
+
+	if (gamestate == MENU)
+		new_screen = new MenuScreen(screen->getWindow());
+	else if (gamestate == OPTIONS)
+		new_screen = NULL;//new OptionsScreen(*window);
+	else if (gamestate == GAME)
+		new_screen = new GameScreen(screen->getWindow());
+	new_screen->getEvents()[1]->setToggleOptions(this->_toggle_options);
+	all_screens.push_back(new_screen);
+	return (new_screen->getIndex());
+}
+
+int		IEvent::toggleBoundingBoxes(int index)
+{
+	this->_toggle_options[0] = !this->_toggle_options[0];
+	if (this->_toggle_options[0])
 		std::cout << "Showing bounding boxes" << std::endl;
 	else
 		std::cout << "Hiding bounding boxes" << std::endl;
-	return (gamestate);
+	return (index);
+}
+
+int	IEvent::toggleGrid(int index)
+{
+	this->_toggle_options[1] = !this->_toggle_options[1];
+	if (this->_toggle_options[1])
+		std::cout << "Showing grid" << std::endl;
+	else
+		std::cout << "Hiding grid" << std::endl;
+	return (index);
 }

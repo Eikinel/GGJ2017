@@ -4,7 +4,9 @@
 # include "Entity.h"
 # include <functional>
 
-class IEvent;
+class	IEvent;
+class	BoxCollider;
+enum	eGamestate;
 
 enum			eIndent
 {
@@ -13,29 +15,34 @@ enum			eIndent
 	RIGHT
 };
 
-class			Button : public Entity
+class			Button : public Entity<BoxCollider>
 {
 public:
-	Button(const std::string& text, const size_t& size, const sf::Vector2f& pos = sf::Vector2f(0, 0), const eIndent indent = LEFT, const std::string& path_to_font = FONTS_DIR"/moyko.ttf");
-	Button(const std::string& text, const size_t& size, const sf::Font& font, const sf::Vector2f& pos = sf::Vector2f(0, 0), const eIndent indent = LEFT);
+	Button(const std::string& text, const size_t& size, const sf::Vector2f& pos = sf::Vector2f(0, 0),
+		const eIndent& indent = LEFT, const std::string& path_to_font = FONTS_DIR"/moyko.ttf",
+		const sf::Texture& texture = sf::Texture());
+	Button(const std::string& text, const size_t& size, const sf::Font& font, const sf::Vector2f& pos = sf::Vector2f(0, 0),
+		const eIndent& indent = LEFT, const sf::Texture& texture = sf::Texture());
 	Button(const Button& other);
 	virtual ~Button();
 
 	//GETTERS
 	virtual sf::Text&					getText();
-	virtual const std::function<int()>&	getEvent();
+	virtual const std::function<int()>&	getEvent() const;
 
 	//SETTERS
-	template <typename U, typename... T> void onClick(int (U::*func)(T...), U* event, T... params)
-	{
-		this->_event = std::bind(func, event, params...);
-	}
-	template <typename U, typename V, typename... T> void onClick(int (U::*func)(T..., V), U* event, V params2, T... params)
-	{
-		this->_event = std::bind(func, event, params2, params...);
-	}
+	void	setEvent(const std::function<int()> event);
 
 	//METHODS
+	template <typename U, typename... T> void onClick(int (U::*func)(int, T...), U* event, int index, T... params)
+	{
+		this->_event = std::bind(func, event, index, params...);
+	}
+	template <typename U, typename... T> void onClick(int (U::*func)(eGamestate, T...), U* event, eGamestate gamestate, T... params)
+	{
+		this->_event = std::bind(func, event, gamestate, params...);
+	}
+
 	int triggerEvent();
 
 private:

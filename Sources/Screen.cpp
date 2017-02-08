@@ -1,18 +1,18 @@
 #include <iostream>
 #include "Screen.h"
-#include "Collider.h"
 #include "Button.h"
 
 
 //CONSTRUCTORS
-IScreen::IScreen(sf::RenderWindow& window) : _window(window)
+IScreen::IScreen(sf::RenderWindow& window, eGamestate state) : _window(window), _state(state)
 {
+	this->_index = all_screens.size();
+	this->_window.setFramerateLimit(120);
 }
 
-MenuScreen::MenuScreen(sf::RenderWindow& window) : IScreen(window)
+MenuScreen::MenuScreen(sf::RenderWindow& window) : IScreen(window, MENU)
 {
-	this->_index = MENU_INDEX;
-	this->_window.setFramerateLimit(120);
+	std::cout << std::endl << "Creating menu screen" << std::endl;
 	this->_events.push_back(new WindowDefaultEvent); // Event handler for options, close window, etc.
 	this->_events.push_back(new MenuEvent); // Update menu, draw it and react in terms of user inputs.
 
@@ -26,20 +26,34 @@ MenuScreen::MenuScreen(sf::RenderWindow& window) : IScreen(window)
 		this->_window.getSize().x / 1.55f,
 		this->_window.getSize().y / 1.25f), RIGHT));
 	this->_buttons.push_back(new Button("Toggle bounding boxes", this->_window.getSize().y / 25.f, sf::Vector2f(
-		this->_window.getSize().x / 100.f,
-		this->_window.getSize().y - this->_window.getSize().y / 25.f), LEFT));
-	this->_buttons[0]->onClick(&MenuEvent::createGame, static_cast<MenuEvent *>(this->_events[1]), GAME_INDEX, &this->_window);
-	this->_buttons[1]->onClick(&IEvent::changeScreen, this->_events[1], OPTIONS_INDEX);
-	this->_buttons[2]->onClick(&IEvent::changeScreen, this->_events[1], CLOSE);
-	this->_buttons[3]->onClick(&MenuEvent::toggleBoundingBoxes, static_cast<MenuEvent *>(this->_events[1]), (int)this->_index);
+		this->_window.getSize().x / 9.2f,
+		this->_window.getSize().y - this->_window.getSize().y / 25.f), CENTER));
+	this->_buttons[0]->onClick(&IEvent::changeScreen, this->_events[1], GAME, static_cast<IScreen *>(this));
+	this->_buttons[1]->onClick(&IEvent::changeScreen, this->_events[1], OPTIONS, static_cast<IScreen *>(this));
+	this->_buttons[2]->onClick(&IEvent::changeScreen, this->_events[1], EXIT, static_cast<IScreen *>(this));
+	this->_buttons[3]->onClick(&IEvent::toggleBoundingBoxes, this->_events[1], this->_index);
 }
 
-GameScreen::GameScreen(sf::RenderWindow& window) :  IScreen(window)
+GameScreen::GameScreen(sf::RenderWindow& window) :  IScreen(window, GAME)
 {
-	this->_index = GAME_INDEX;
-	this->_window.setFramerateLimit(120);
+	std::cout << std::endl << "Creating game screen" << std::endl;
 	this->_events.push_back(new WindowDefaultEvent); // Event handler for options, close window, etc.
-	this->_events.push_back(new GameEvent); // Update menu, draw it and react in terms of user inputs.
+	this->_events.push_back(new GameEvent); // Update game, draw it and react in terms of user inputs.
+
+	this->_buttons.push_back(new Button("Toggle bounding boxes", this->_window.getSize().y / 25.f, sf::Vector2f(
+		this->_window.getSize().x / 9.2f,
+		this->_window.getSize().y - this->_window.getSize().y / 6.f), LEFT));
+	this->_buttons.push_back(new Button("Toggle grid", this->_window.getSize().y / 25.f, sf::Vector2f(
+		this->_window.getSize().x / 9.2f,
+		this->_window.getSize().y - this->_window.getSize().y / 10.f), LEFT));
+	this->_buttons.push_back(new Button("Back to menu", this->_window.getSize().y / 25.f, sf::Vector2f(
+		this->_window.getSize().x / 9.2f,
+		this->_window.getSize().y - this->_window.getSize().y / 25.f), LEFT));
+	this->_buttons[0]->onClick(&IEvent::toggleBoundingBoxes, this->_events[1], this->_index);
+	this->_buttons[1]->onClick(&IEvent::toggleGrid, this->_events[1], this->_index);
+	this->_buttons[2]->onClick(&IEvent::changeScreen, this->_events[1], MENU, static_cast<IScreen *>(this));
+
+	this->_grid = new Grid(window.getSize());
 }
 
 IScreen::~IScreen()
@@ -51,9 +65,17 @@ IScreen::~IScreen()
 
 MenuScreen::~MenuScreen()
 {
-	std::cout << "Deleting Menu Screen" << std::endl;
+	std::cout << "Deleting menu screen" << std::endl;
 	for (std::vector<Button *>::const_iterator it = this->_buttons.begin(); it != this->_buttons.end(); ++it)
 		delete (*it);
+}
+
+GameScreen::~GameScreen()
+{
+	std::cout << "Deleting game screen" << std::endl;
+	for (std::vector<Button *>::const_iterator it = this->_buttons.begin(); it != this->_buttons.end(); ++it)
+		delete (*it);
+	delete(this->_grid);
 }
 
 
@@ -68,7 +90,12 @@ std::vector<IEvent *>&	IScreen::getEvents()
 	return (this->_events);
 }
 
-unsigned int			IScreen::getIndex()
+eGamestate				IScreen::getState() const
+{
+	return (this->_state);
+}
+
+const unsigned int		IScreen::getIndex() const
 {
 	return (this->_index);
 }
@@ -76,6 +103,16 @@ unsigned int			IScreen::getIndex()
 std::vector<Button *>&	MenuScreen::getButtons()
 {
 	return (this->_buttons);
+}
+
+std::vector<Button *>&	GameScreen::getButtons()
+{
+	return (this->_buttons);
+}
+
+Grid&					GameScreen::getGrid()
+{
+	return (*this->_grid);
 }
 
 

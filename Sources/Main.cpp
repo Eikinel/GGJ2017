@@ -13,13 +13,17 @@ int		main()
 		sf::Style::Close);
 
 	// Pushing screens to the stack
-	all_screens.push_back(new MenuScreen(window));
+	all_screens.push_back(new GameScreen(window));
 
 	// Run every elements in the stack. If there's no more screen left or a close request is done, break the loop.
-	int status = 0;
-	while ((status = all_screens[status]->run()) >= 0 && status < all_screens.size());
+	int status = MENU;
+	while ((status = all_screens[status]->run()) != EXIT && status < all_screens.size());
 
-	for (unsigned int i = 0; i < all_screens.size(); i++)
-		delete (all_screens[i]);
+	// On exit request, delete all screens properly
+	for (std::vector<IScreen *>::const_iterator it = all_screens.begin(); it != all_screens.end(); ++it)
+	{
+		std::cout << "Screen n°" << (*it)->getIndex() << " : " << std::endl;
+		delete(*it);
+	}
 	return (status);
 }

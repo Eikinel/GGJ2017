@@ -20,9 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Sources\Button.cpp" />
-    <ClCompile Include="..\Sources\Collider.cpp" />
-    <ClCompile Include="..\Sources\Entity.cpp" />
     <ClCompile Include="..\Sources\Event.cpp" />
+    <ClCompile Include="..\Sources\Grid.cpp" />
     <ClCompile Include="..\Sources\Main.cpp" />
     <ClCompile Include="..\Sources\Screen.cpp" />
   </ItemGroup>
@@ -32,6 +31,7 @@
     <ClInclude Include="..\Includes\Constants.h" />
     <ClInclude Include="..\Includes\Entity.h" />
     <ClInclude Include="..\Includes\Event.h" />
+    <ClInclude Include="..\Includes\Grid.h" />
     <ClInclude Include="..\Includes\Screen.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

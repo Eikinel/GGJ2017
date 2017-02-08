@@ -3,7 +3,8 @@
 
 
 //CONSTRUCTORS
-Button::Button(const std::string& text, const size_t& size, const sf::Vector2f& pos, const eIndent indent, const std::string& path) : Entity(BUTTON)
+Button::Button(const std::string& text, const size_t& size, const sf::Vector2f& pos,
+	const eIndent& indent, const std::string& path, const sf::Texture& texture) : Entity(BUTTON, texture)
 {
 	std::string	format[3] = { "LEFT", "CENTER", "RIGHT" };
 
@@ -23,7 +24,8 @@ Button::Button(const std::string& text, const size_t& size, const sf::Vector2f& 
 	this->addCollider(new BoxCollider(this->_text.getGlobalBounds()));
 }
 
-Button::Button(const std::string& text, const size_t& size, const sf::Font& font, const sf::Vector2f& pos, const eIndent indent) : Entity(BUTTON)
+Button::Button(const std::string& text, const size_t& size, const sf::Font& font,
+	const sf::Vector2f& pos, const eIndent& indent, const sf::Texture& texture) : Entity(BUTTON, texture)
 {
 	std::cout << "Add button with text \"" << text << "\"." << std::endl;
 	this->_font = font;
@@ -33,7 +35,8 @@ Button::Button(const std::string& text, const size_t& size, const sf::Font& font
 	this->_text.setOrigin(sf::Vector2f(
 		(this->_text.getGlobalBounds().width / 2.f) * (float)indent,
 		this->_text.getGlobalBounds().height / 2.f));
-	this->_text.setPosition(pos);
+	this->_text.setPosition(pos + sf::Vector2f(
+		(pos.x / 2.f) * ((float)indent - 1.f), 0));
 	this->_event = NULL;
 
 	sf::FloatRect	box = this->_text.getGlobalBounds();
@@ -41,12 +44,13 @@ Button::Button(const std::string& text, const size_t& size, const sf::Font& font
 	this->addCollider(new BoxCollider(box));
 }
 
-Button::Button(const Button& other) : Entity(other._type)
+Button::Button(const Button& other) : Entity(other._type, other._texture)
 {
-	std::cout << "Copy button with text \"" << this->_text.getString().toAnsiString() << "\"." << std::endl;
-	this->_font = other._font;
-	this->_text = other._text;
-	this->_colliders = other._colliders;
+	this->_font = sf::Font(other._font);
+	this->_text = sf::Text(other._text);
+	for (std::vector<BoxCollider *>::const_iterator it = other._colliders.begin(); it != other._colliders.end(); ++it)
+		this->_colliders.push_back(new BoxCollider((*it)->getShape().getGlobalBounds()));
+	this->_sprite = sf::Sprite(other._sprite);
 	this->_event = other._event;
 }
 
@@ -56,14 +60,21 @@ Button::~Button()
 
 
 //GETTERS
-sf::Text&	Button::getText() 
+sf::Text&					Button::getText() 
 {
 	return (this->_text);
 }
 
-const std::function<int()>&	Button::getEvent()
+const std::function<int()>&	Button::getEvent() const
 {
 	return (this->_event);
+}
+
+
+//SETTERS
+void	Button::setEvent(const std::function<int()> event)
+{
+	this->_event = event;
 }
 
 
