@@ -8,7 +8,7 @@
 enum			eEntityType
 {
 	BUTTON,
-	ALLY,
+	PLAYER,
 	ENEMY,
 	GRID,
 	OBJECT
@@ -26,6 +26,14 @@ public:
 		this->_sprite.setTexture(this->_texture);
 	}
 
+	Entity(const eEntityType& type, const std::string& path_to_texture)
+	{
+		this->_type = type;
+		if (this->_texture.loadFromFile(path_to_texture) == NULL)
+			std::cout << "Failed to load " << path_to_texture << std::endl;
+		this->_sprite.setTexture(this->_texture);
+	}
+
 	Entity(const Entity& other)
 	{
 		this->_colliders = other._colliders;
@@ -36,7 +44,7 @@ public:
 
 	virtual ~Entity()
 	{
-		const std::string type[5] = { "button", "ally", "enemy", "grid", "object" };
+		const std::string type[5] = { "button", "hero", "enemy", "grid", "object" };
 
 		std::cout << "Deleting entity of type " << type[this->_type] << std::endl;
 		for (std::vector<T *>::const_iterator it = this->_colliders.begin(); it != this->_colliders.end(); ++it)

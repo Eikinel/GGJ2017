@@ -4,6 +4,8 @@
 # include "Constants.h"
 # include "Event.h"
 # include "Grid.h"
+# include "Collider.h"
+# include "Player.h"
 
 class IEvent;
 class Button;
@@ -59,8 +61,11 @@ public:
 	//GETTERS
 	virtual std::vector<Button *>&	getButtons();
 	virtual Grid&					getGrid();
+	virtual const sf::Sprite&		getMap() const;
 
 protected:
 	std::vector<Button *>	_buttons;
 	Grid *					_grid;
+	sf::Texture				_map_texture;
+	sf::Sprite				_map;
 };

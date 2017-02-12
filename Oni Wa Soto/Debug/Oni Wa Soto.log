@@ -1,12 +1,14 @@
-﻿  Grid.cpp
-h:\documents\projets\oni-wa-soto\includes\constants.h(41): warning C4244: '=' : conversion de 'double' en 'float', perte possible de données
-h:\documents\projets\oni-wa-soto\includes\constants.h(42): warning C4244: '=' : conversion de 'double' en 'float', perte possible de données
+﻿  Player.cpp
 h:\documents\projets\oni-wa-soto\includes\collider.h(59): warning C4244: 'argument' : conversion de 'int' en 'float', perte possible de données
-h:\documents\projets\oni-wa-soto\includes\collider.h(128): warning C4244: '+=' : conversion de 'float' en 'unsigned int', perte possible de données
+  Grid.cpp
+h:\documents\projets\oni-wa-soto\includes\collider.h(59): warning C4244: 'argument' : conversion de 'int' en 'float', perte possible de données
 h:\documents\projets\oni-wa-soto\sources\grid.cpp(7): warning C4244: 'initialisation' : conversion de 'float' en 'unsigned int', perte possible de données
-h:\documents\projets\oni-wa-soto\sources\grid.cpp(17): warning C4244: 'argument' : conversion de 'float' en 'unsigned int', perte possible de données
-h:\documents\projets\oni-wa-soto\sources\grid.cpp(19): warning C4244: 'argument' : conversion de 'unsigned int' en 'float', perte possible de données
-h:\documents\projets\oni-wa-soto\sources\grid.cpp(76): warning C4172: retourne l'adresse d'une variable locale ou : pos temporaire
-h:\documents\projets\oni-wa-soto\includes\constants.h(24): warning C4172: retourne l'adresse d'une variable locale ou  temporaire
+h:\documents\projets\oni-wa-soto\sources\grid.cpp(11): warning C4244: 'initialisation' : conversion de 'int' en 'float', perte possible de données
+h:\documents\projets\oni-wa-soto\sources\grid.cpp(18): warning C4244: 'initialisation' : conversion de 'int' en 'float', perte possible de données
+h:\documents\projets\oni-wa-soto\sources\grid.cpp(23): warning C4244: 'argument' : conversion de 'unsigned int' en 'float', perte possible de données
+  Génération de code en cours...
+h:\documents\projets\oni-wa-soto\sources\grid.cpp(83): warning C4172: retourne l'adresse d'une variable locale ou : pos temporaire
+h:\documents\projets\oni-wa-soto\sources\grid.cpp(92): warning C4715: 'Grid::getPlayer' : les chemins de contrôle ne retournent pas tous une valeur
+h:\documents\projets\oni-wa-soto\includes\constants.h(19): warning C4172: retourne l'adresse d'une variable locale ou  temporaire
   Oni Wa Soto.vcxproj -> H:\Documents\Projets\Oni-Wa-Soto\Debug\Oni Wa Soto.exe
   Oni Wa Soto.vcxproj -> H:\Documents\Projets\Oni-Wa-Soto\Debug\Oni Wa Soto.pdb (Full PDB)

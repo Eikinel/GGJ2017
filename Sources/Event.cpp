@@ -101,9 +101,9 @@ int		GameEvent::update(IScreen& screen, sf::Event& event)
 	{
 	case sf::Event::MouseMoved:
 		//Select a square on the grid according to mouse's position
-		for (std::vector<std::vector<ParallelogramCollider *>>::const_iterator it = gscreen->getGrid().getSquares().begin(); it != gscreen->getGrid().getSquares().end(); ++it)
+		for (std::vector<std::vector<ParallelogramCollider *>>::iterator it = gscreen->getGrid().getSquares().begin(); it != gscreen->getGrid().getSquares().end(); ++it)
 		{
-			for (std::vector<ParallelogramCollider *>::const_iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
+			for (std::vector<ParallelogramCollider *>::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
 			{
 				if ((*it2)->contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y)) && (*it2) != gscreen->getGrid().getSelectedSquare())
 					gscreen->getGrid().selectSquare(**it2);
@@ -130,6 +130,8 @@ int		GameEvent::update(IScreen& screen, sf::Event& event)
 		{
 			sf::Vector2u	pos = gscreen->getGrid().getSquareIndex(gscreen->getGrid().getSelectedSquare());
 			std::cout << "Clicked on case [" << pos.x << " ; " << pos.y << "]" << std::endl;
+
+			gscreen->getGrid().setPlayerPosition(pos);
 		}
 
 	default:
@@ -143,6 +145,9 @@ void		GameEvent::draw(IScreen& screen)
 {
 	GameScreen*	gscreen = static_cast<GameScreen *>(&screen);
 
+	//Draw map
+	gscreen->getWindow().draw(gscreen->getMap());
+
 	//Draw grid
 	if (this->_toggle_options[1])
 	{
@@ -152,8 +157,28 @@ void		GameEvent::draw(IScreen& screen)
 			gscreen->getWindow().draw(*it);
 		if (selected != NULL)
 		{
-			selected->getShape().setFillColor(sf::Color::Green);
+			selected->getShape().setFillColor(sf::Color(142, 200, 77));
 			gscreen->getWindow().draw(selected->getShape());
+		}
+	}
+
+	//Draw grid's entities
+	for (std::vector<std::vector<Entity<BoxCollider> *>>::const_iterator it = gscreen->getGrid().getEntities().begin(); it != gscreen->getGrid().getEntities().end(); ++it)
+	{
+		for (std::vector<Entity<BoxCollider> *>::const_iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
+		{
+			if ((*it2) != NULL)
+			{
+				gscreen->getWindow().draw((*it2)->getSprite());
+				if (this->_toggle_options[0])
+				{
+					std::vector<sf::VertexArray>	boxes;
+
+					this->getBoundingBoxes(**it2, boxes);
+					for (std::vector<sf::VertexArray>::const_iterator it3 = boxes.begin(); it3 != boxes.end(); ++it3)
+						gscreen->getWindow().draw(*it3);
+				}
+			}
 		}
 	}
 

@@ -113,25 +113,37 @@ public:
 
 	virtual bool	contains(const sf::Vector2f& point)
 	{
-		if (point.x < this->_shape.getPoint(0).x || point.x > this->_shape.getPoint(2).x ||
-			point.y < this->_shape.getPoint(0).y || point.y > this->_shape.getPoint(2).y)
+		sf::FloatRect	box = this->_shape.getGlobalBounds();
+
+		if (point.x < box.left || point.x > box.left + box.width ||
+			point.y < box.top || point.y > box.top + box.height)
 			return (false);
 
-		unsigned int	ct = 0;
-		sf::Vector2f	vect_dir(this->_shape.getPoint(3).x - this->_shape.getPoint(0).x, this->_shape.getPoint(3).y - this->_shape.getPoint(0).y);
-		sf::Vector2f	margin((5.f / 100.f) * vect_dir.x, 0); //For calcul optimisation
+		int				ct = 0;
+		sf::Vector2f	A(this->_shape.getPoint(0));
+		sf::Vector2f	B(this->_shape.getPoint(1));
+		sf::Vector2f	vect_dir(A.x - B.x, A.y - B.y);
 
 		vect_dir /= vect_dir.y;
 
-		for (float y = this->_shape.getGlobalBounds().top; y < this->_shape.getGlobalBounds().top + this->_shape.getGlobalBounds().height; y += vect_dir.y + margin.y)
+		for (float y = box.top; y < box.top + box.height; y++)
 		{
-			ct += vect_dir.y + margin.y;
-			for (float x = this->_shape.getGlobalBounds().left + ct * vect_dir.x; x < this->_shape.getGlobalBounds().left + ct * vect_dir.x + this->_shape.getGlobalBounds().width; x += vect_dir.x + margin.x)
+			if (B.x + ct * vect_dir.x <= A.x)
 			{
-				if ((x >= point.x - margin.x && x <= point.x + margin.x) &&
-					(y >= point.y - margin.y && y <= point.y + margin.y))
+				ct = -ct;
+				B = sf::Vector2f(this->_shape.getPoint(3));
+				vect_dir = sf::Vector2f(B.x - A.x, B.y - A.y);
+				vect_dir /= vect_dir.y;
+			}
+
+			for (float x = B.x + ct * vect_dir.x; x < B.x + (-ct) * vect_dir.x; x++)
+			{
+				if ((x >= point.x && x <= point.x) &&
+					(y >= point.y && y <= point.y))
 					return (true);
 			}
+
+			ct++;
 		}
 
 		return (false);

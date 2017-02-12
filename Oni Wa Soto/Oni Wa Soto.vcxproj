@@ -23,6 +23,7 @@
     <ClCompile Include="..\Sources\Event.cpp" />
     <ClCompile Include="..\Sources\Grid.cpp" />
     <ClCompile Include="..\Sources\Main.cpp" />
+    <ClCompile Include="..\Sources\Player.cpp" />
     <ClCompile Include="..\Sources\Screen.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -32,6 +33,7 @@
     <ClInclude Include="..\Includes\Entity.h" />
     <ClInclude Include="..\Includes\Event.h" />
     <ClInclude Include="..\Includes\Grid.h" />
+    <ClInclude Include="..\Includes\Player.h" />
     <ClInclude Include="..\Includes\Screen.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

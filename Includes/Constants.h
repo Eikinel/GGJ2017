@@ -16,30 +16,21 @@ extern std::vector<IScreen *> all_screens;
 // Static methods
 static sf::Vector2f&	toIsometric(const sf::Vector2f& cart)
 {
-	float x, y;
-
-	x = cart.x + cart.y / 2.f;
-	y = cart.y;
-
-	return (sf::Vector2f(x, y));
+	return (sf::Vector2f(
+		cart.x + cart.y,
+		(cart.y - cart.x) / 2.f));
 }
 
 static sf::Vector2f&	toIsometric(const sf::FloatRect& cart)
 {
-	float x, y;
-
-	x = cart.left + cart.top / 2.0f;
-	y = cart.top;
-
-	return (sf::Vector2f(x, y));
+	return (sf::Vector2f(
+		cart.left + cart.top,
+		(cart.top - cart.left) / 2.f));
 }
 
 static sf::Vector2f&	toCartesian(const sf::Vector2f& iso)
 {
-	float x, y;
-
-	x = (iso.x - iso.y) / 1.5;
-	y = iso.y / 3.0 + iso.y / 1.5;
-
-	return (sf::Vector2f(x, y));
+	return (sf::Vector2f(
+		(iso.x - (iso.y * 2.f)) / 2.f,
+		(iso.x / 2.f + iso.y)));
 }

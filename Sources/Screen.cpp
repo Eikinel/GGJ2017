@@ -54,6 +54,16 @@ GameScreen::GameScreen(sf::RenderWindow& window) :  IScreen(window, GAME)
 	this->_buttons[2]->onClick(&IEvent::changeScreen, this->_events[1], MENU, static_cast<IScreen *>(this));
 
 	this->_grid = new Grid(window.getSize());
+
+	this->_map_texture.loadFromFile(SPRITES_DIR"/Environment/map_final.png");
+	this->_map.setTexture(this->_map_texture);
+	this->_map.setScale(sf::Vector2f(
+		this->_window.getSize().x / this->_map.getGlobalBounds().width,
+		this->_window.getSize().x / this->_map.getGlobalBounds().width));
+
+	this->_grid->addPlayer(new Player(sf::Vector2u(20, 20),
+		this->_grid->getSquares()[20][20]->getShape().getGlobalBounds(),
+		SPRITES_DIR"/Hero/hero_face_right.png"));
 }
 
 IScreen::~IScreen()
@@ -113,6 +123,11 @@ std::vector<Button *>&	GameScreen::getButtons()
 Grid&					GameScreen::getGrid()
 {
 	return (*this->_grid);
+}
+
+const sf::Sprite&		GameScreen::getMap() const
+{
+	return (this->_map);
 }
 
 
